@@ -6,7 +6,6 @@ public:
 
         priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<>> pq;
         int n = grid.size(), m = grid[0].size();
-        vector<vector<bool>> visited(n, vector<bool>(m, false));
         vector<vector<int>> mp(n, vector<int>(m, INT_MAX));
 
         if(grid[0][1] <= 1) pq.push({1, 0, 1});
@@ -22,28 +21,27 @@ public:
             int x = get<1>(pq.top()), y = get<2>(pq.top());
             pq.pop();
 
-            if(visited[x][y] && mp[x][y] <= time) continue;
-            visited[x][y] = true;
-            mp[x][y] = time;
+            if(time > mp[x][y]) continue;
 
             for(int i=0; i<4; ++i)
-                if(x+dx[i] >= 0 && x+dx[i] < n && y+dy[i] >= 0 && y+dy[i] < m)
+            {
+                int nx = x+dx[i], ny = y+dy[i];
+                if(nx >= 0 && nx < n && ny >= 0 && ny < m)
                 {
-                    if(!visited[x+dx[i]][y+dy[i]])
+                    int newTime = time + 1;
+                    if(grid[nx][ny] > newTime)
                     {
-                        if(grid[x+dx[i]][y+dy[i]] <= time+1) pq.push({time+1, x+dx[i], y+dy[i]});
-                        else
-                        {
-                            int w = (grid[x+dx[i]][y+dy[i]] - time)/2;
-                            pq.push({time+w*2+1, x+dx[i], y+dy[i]});
-                        }
+                        int wait = (grid[nx][ny] - newTime + 1) / 2;
+                        newTime += wait * 2;
                     }
-                    else
+
+                    if(newTime < mp[nx][ny])
                     {
-                        if(mp[x+dx[i]][y+dy[i]] > time+1)
-                            pq.push({time+1, x+dx[i], y+dy[i]});
+                        mp[nx][ny] = newTime;
+                        pq.push({newTime, nx, ny});
                     }
                 }
+            }
         }
         return mp[n-1][m-1];
     }
