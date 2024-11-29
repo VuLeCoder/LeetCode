@@ -4,8 +4,7 @@ public:
     {
         priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<>> pq;
         int n = grid.size(), m = grid[0].size();
-        vector<vector<bool>> visited(n, vector<bool>(m));
-        map<pair<int, int>, int> mp;
+        vector<vector<int>> mp(n, vector<int>(m, INT_MAX));
 
         pq.push({0, 0, 0});
 
@@ -18,25 +17,19 @@ public:
             int remove = get<0>(pq.top());
             pq.pop();
 
-            if(visited[x][y] && mp[{x, y}] <= remove) continue;
-            visited[x][y] = true;
-            mp[{x, y}] = remove;
+            if(remove > mp[x][y]) continue;
 
             for(int i=0; i<4; ++i)
                 if(x+dx[i] >= 0 && x+dx[i] < n && y+dy[i] >= 0 && y+dy[i] < m)
                 {
-                    if(!visited[x+dx[i]][y+dy[i]])
+                    int newRemove = remove + grid[x+dx[i]][y+dy[i]];
+                    if(newRemove < mp[x+dx[i]][y+dy[i]])
                     {
-                        if(grid[x+dx[i]][y+dy[i]] == 1) pq.push({remove+1, x+dx[i], y+dy[i]});
-                        else pq.push({remove, x+dx[i], y+dy[i]});
-                    }
-                    else
-                    {
-                        if(mp[{x+dx[i], y+dy[i]}] > remove)
-                            pq.push({remove, x+dx[i], y+dy[i]});
+                        mp[x+dx[i]][y+dy[i]] = newRemove;
+                        pq.push({newRemove, x+dx[i], y+dy[i]});
                     }
                 }
         }
-        return mp[{n-1, m-1}];
+        return mp[n-1][m-1];
     }
 };
